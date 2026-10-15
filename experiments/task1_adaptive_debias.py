@@ -48,7 +48,34 @@ REGISTRY = {
     "template_hybrid l=0.75": (D("template_hybrid", lam=0.75), P()),
 }
 
-DEFAULT = list(REGISTRY)
+# The noise-image spectrum decays steeply (most positional energy lies in the first
+# ~50 components), so soft weightings centred at k=500 barely differ from the hard
+# projection. These variants place the soft knee where the positional energy is,
+# alongside the corresponding hard-rank ablations (paper Fig. 7).
+SEG_KNEE = {
+    "hard k=50":                (D("hard", k=50), P()),
+    "hard k=100":               (D("hard", k=100), P()),
+    "hard k=200":               (D("hard", k=200), P()),
+    "spectral k=50":            (D("spectral", k=50, rho=1.0), P()),
+    "spectral k=100":           (D("spectral", k=100, rho=1.0), P()),
+    "spectral k=200":           (D("spectral", k=200, rho=1.0), P()),
+    "soft_rank k=200 t=0.5":    (D("soft_rank", k=200, temp=0.5), P()),
+    "token k=100 eta=1":        (D("token", k=100, eta=1.0), P()),
+    "template k=100":           (D("template", k=100), P()),
+    "template_hybrid k=500 l=0.9": (D("template_hybrid", lam=0.9), P()),
+}
+CORR_KNEE = {  # SPair protocol uses k=20 (ViT-B)
+    "hard k=10":                (D("hard", k=10), P()),
+    "hard k=40":                (D("hard", k=40), P()),
+    "spectral k=10":            (D("spectral", k=10, rho=1.0), P()),
+    "spectral k=40":            (D("spectral", k=40, rho=1.0), P()),
+}
+REGISTRY.update(SEG_KNEE)
+REGISTRY.update(CORR_KNEE)
+
+BASE = [n for n in REGISTRY if n not in SEG_KNEE and n not in CORR_KNEE]
+DEFAULT_SEG = BASE + list(SEG_KNEE)
+DEFAULT_CORR = BASE + list(CORR_KNEE)
 
 if __name__ == "__main__":
-    main("INSID3 Task 1: adaptive positional debiasing", REGISTRY, DEFAULT, DEFAULT)
+    main("INSID3 Task 1: adaptive positional debiasing", REGISTRY, DEFAULT_SEG, DEFAULT_CORR)
