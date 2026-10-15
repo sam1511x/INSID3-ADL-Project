@@ -6,9 +6,10 @@ This guide runs the three stages **in order** on a Linux PC with an NVIDIA GPU w
 2. **Task 1**: Adaptive Positional Debiasing
 3. **Task 2**: Multi-Prototype Reference Matching
 
-All commands run from the repository root. Every setting listed here was verified on Google Colab
-(Tesla T4, PyTorch capped to **8 GB** with `--max-vram-gb 8`). Verified numbers are in
-[results/COLAB_VERIFICATION.md](results/COLAB_VERIFICATION.md).
+All commands run from the repository root. The model settings (DINOv3-L @ 1024 px for segmentation, DINOv3-B @ 768 px for
+SPair) and the benchmarks in the table below were verified on Google Colab (Tesla T4, PyTorch capped to **8 GB** with
+`--max-vram-gb 8`). The other benchmarks (LVIS, PACO-Part, PASCAL-Part, iSAID, SUIM, PerMIS) use the same model setting and
+code path but were not run on Colab because of the free-tier GPU quota.
 
 ## What was verified (and how long it takes)
 
