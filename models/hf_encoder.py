@@ -34,7 +34,7 @@ class HFDinov3Encoder(nn.Module):
     @classmethod
     def from_pretrained(cls, model_size: str = "large") -> "HFDinov3Encoder":
         from transformers import AutoModel
-        model = AutoModel.from_pretrained(HF_REPOS[model_size], torch_dtype=torch.float32)
+        model = AutoModel.from_pretrained(HF_REPOS[model_size], dtype=torch.float32)
         return cls(model)
 
     def get_intermediate_layers(self, x: torch.Tensor, n: int = 1, reshape: bool = False,
