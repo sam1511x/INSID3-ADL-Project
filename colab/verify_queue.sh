@@ -39,7 +39,12 @@ stage_coco2() {   # follow-up: prototype set only in the aggregation stage, and 
 stage_lung2() {
   run python experiments/task2_multiproto.py --dataset lung --max-episodes 150 $CAP --exp-name colab-t2b-lung \
       --variants "single (INSID3)" "M=2 max agg-only" "M=4 max agg-only" "M=8 max agg-only" "M=4 mean agg-only" "M=8 mean agg-only" \
-                 "M=4 ot agg-only" "single + spectral" "M=4 max agg-only + spectral"
+                 "M=4 ot agg-only" "M=8 ot agg-only" "single + spectral" "M=4 max agg-only + spectral"
+}
+stage_isic2() {
+  run python experiments/task2_multiproto.py --dataset isic --max-episodes 150 $CAP --exp-name colab-t2b-isic \
+      --variants "single (INSID3)" "M=2 max agg-only" "M=4 max agg-only" "M=8 max agg-only" "M=4 mean agg-only" \
+                 "M=4 ot agg-only" "M=8 ot agg-only" "M=8 ot" "single + spectral" "M=4 max agg-only + spectral"
 }
 stage_repro() {   # original script, full benchmark
   run python inference_segmentation.py --dataset lung --exp-name colab-repro-lung
