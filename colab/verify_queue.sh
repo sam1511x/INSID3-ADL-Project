@@ -30,6 +30,17 @@ stage_isic() {
   run python experiments/task1_adaptive_debias.py --dataset isic --max-episodes 150 $CAP --exp-name colab-t1-isic
   run python experiments/task2_multiproto.py --dataset isic --max-episodes 150 $CAP --exp-name colab-t2-isic --variants "${T2V[@]}"
 }
+stage_coco2() {   # follow-up: prototype set only in the aggregation stage, and Task1+Task2 combined
+  run python experiments/task2_multiproto.py --dataset coco --fold 0 --max-episodes 250 $CAP --exp-name colab-t2b-coco-f0 \
+      --variants "single (INSID3)" "M=2 max agg-only" "M=3 max agg-only" "M=4 max agg-only" "M=6 max agg-only" "M=8 max agg-only" \
+                 "M=4 mean agg-only" "M=4 softmax agg-only" "M=4 ot agg-only" "M=8 softmax agg-only" "M=8 ot agg-only" \
+                 "single + spectral" "M=4 max agg-only + spectral"
+}
+stage_lung2() {
+  run python experiments/task2_multiproto.py --dataset lung --max-episodes 150 $CAP --exp-name colab-t2b-lung \
+      --variants "single (INSID3)" "M=2 max agg-only" "M=4 max agg-only" "M=8 max agg-only" "M=4 mean agg-only" "M=8 mean agg-only" \
+                 "M=4 ot agg-only" "single + spectral" "M=4 max agg-only + spectral"
+}
 stage_repro() {   # original script, full benchmark
   run python inference_segmentation.py --dataset lung --exp-name colab-repro-lung
 }

@@ -43,7 +43,8 @@ bash scripts/download_data.sh isaid pascal_part lvis paco_part      # remaining 
 ```
 
 See [docs/data.md](docs/data.md) for the expected folder layout. Disk use is about 20 GB for COCO,
-40 GB for LVIS/PACO (COCO-2017 images) and under 2 GB for each of the others.
+40 GB for LVIS/PACO (COCO-2017 images), under 6 GB for each of the others; **PerMIS needs ~45 GB temporarily**
+(it unpacks the TAO test videos before extracting its 216 episodes), so prepare it alone.
 
 Optional CRF refinement (the paper's main Table 1 setting): `CRF=1 bash scripts/0_setup.sh`, then add `CRF=1` to every command below.
 

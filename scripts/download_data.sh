@@ -97,6 +97,7 @@ isaid() {
 }
 
 permis() {
+  # NOTE: needs ~45 GB of free disk temporarily (TAO test frames); ~0.3 GB after cleanup
   mkdir -p PerMIRS && cd PerMIRS
   if [ ! -d 0 ]; then
     wget -q --show-progress "https://motchallenge.net/data/3-TAO_TEST.zip"

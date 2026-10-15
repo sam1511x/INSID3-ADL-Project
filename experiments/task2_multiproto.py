@@ -34,6 +34,15 @@ for M in (4,):
     REGISTRY[f"M={M} max seed+agg only"] = (D(), P(num_protos=M, agg="max", stages="seed,agg"))
     REGISTRY[f"M={M} max agg only"] = (D(), P(num_protos=M, agg="max", stages="agg"))
 
+# The prototype set helps when used only to score clusters for aggregation with the seed
+# (stage 'agg'); in the candidate (fwd) and seed stages max-over-parts is too permissive.
+for M in (2, 3, 4, 6, 8):
+    for agg in ("max", "mean", "softmax", "ot"):
+        REGISTRY[f"M={M} {agg} agg-only"] = (D(), P(num_protos=M, agg=agg, stages="agg"))
+# Task 1 + Task 2 combined (best variants from the COCO-20i verification)
+REGISTRY["M=4 max agg-only + spectral"] = (D("spectral", rho=1.0), P(num_protos=4, agg="max", stages="agg"))
+REGISTRY["single + spectral"] = (D("spectral", rho=1.0), P(num_protos=1))
+
 DEFAULT = list(REGISTRY)
 
 if __name__ == "__main__":

@@ -137,12 +137,14 @@ def plot(out_dir, energy, noise_energy, r2, beta, fg, bg, ratio_maps, k):
     _style(ax, "Energy per positional component", "component index i", "mean (u_i^T x)^2")
 
     ax = axes[0, 1]
-    j = np.arange(1, r2.shape[1] + 1)
-    ax.plot(j, r2.mean(0).numpy(), color=BLUE, lw=2, label="template R² (mean)")
-    ax.plot(j, beta.mean(0).clamp(-1, 2).numpy(), color=AQUA, lw=2, label="fitted amplitude β (mean)")
-    ax.axvline(k, color=MUTED, ls="--", lw=1)
+    nshow = min(100, r2.shape[1])  # templates vanish beyond ~100 components (beta is then noise)
+    j = np.arange(1, nshow + 1)
+    ax.plot(j, r2.mean(0)[:nshow].numpy(), color=BLUE, lw=2, label="template R² (mean)")
+    ax.plot(j, beta.mean(0)[:nshow].clamp(-1, 2).numpy(), color=AQUA, lw=2, label="fitted amplitude β (mean)")
+    if k <= nshow:
+        ax.axvline(k, color=MUTED, ls="--", lw=1)
     ax.legend(frameon=False)
-    _style(ax, "How positional is each component in real images?", "component index i", "value")
+    _style(ax, f"How positional is each component? (first {nshow})", "component index i", "value")
 
     ax = axes[1, 0]
     if fg.numel() and bg.numel():
@@ -181,7 +183,13 @@ if __name__ == "__main__":
     parser = get_parser("INSID3 Task 1: positional component analysis")
     parser.add_argument("--num-images", type=int, default=200)
     parser.add_argument("--max-components", type=int, default=1024)
+    parser.add_argument("--replot", default=None, help="Re-draw figures from an existing analysis folder")
     args = parser.parse_args()
+    if args.replot:
+        d = torch.load(join(args.replot, "positional_analysis.pt"))
+        k = json.load(open(join(args.replot, "positional_analysis.json")))["k"]
+        plot(args.replot, d["energy"], d["noise_energy"], d["r2"], d["beta"], d["fg"], d["bg"], d["ratio_maps"], k)
+        sys.exit(0)
     out_dir = setup(args)
     model = build_insid3_ext_from_args(args)
     model.to(args.device)
