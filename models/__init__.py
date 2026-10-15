@@ -5,7 +5,7 @@ import os
 import torch
 
 from models.insid3 import INSID3
-from models.hf_encoder import HFDinov3Encoder
+from models.hf_encoder import load_hub_encoder
 
 _HUB_NAMES = {
     "small": "dinov3_vits16",
@@ -30,7 +30,7 @@ def _build_encoder(model_size: str = "large"):
             weights=_WEIGHTS[model_size],
         )
     print(f"[INSID3] {_WEIGHTS[model_size]} not found, loading DINOv3 from the HuggingFace Hub")
-    return HFDinov3Encoder.from_pretrained(model_size)
+    return load_hub_encoder(model_size)
 
 
 def build_insid3(
