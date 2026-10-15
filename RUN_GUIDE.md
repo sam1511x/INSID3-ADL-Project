@@ -10,7 +10,26 @@ All commands run from the repository root. Every setting listed here was verifie
 (Tesla T4, PyTorch capped to **8 GB** with `--max-vram-gb 8`). Verified numbers are in
 [results/COLAB_VERIFICATION.md](results/COLAB_VERIFICATION.md).
 
-<!-- VERIFIED-SETTINGS -->
+## What was verified (and how long it takes)
+
+| stage | setting (8 GB cap) | verified on Colab | peak VRAM | T4 time |
+|---|---|---|---|---|
+| Reproduction | DINOv3-L, 1024 px, original `inference_segmentation.py` | Chest X-Ray, all 600 episodes: **77.0 mIoU** (paper 78.8 with CRF) | 6.1 GB | 65 min |
+| Reproduction | same, through `hard (INSID3)` variant | COCO-20i f0 (250 ep.): **57.37** (paper 57.6) | 6.1 GB | 7 s/episode |
+| Reproduction | SPair, DINOv3-B, 768 px, k=20 | 2000 pairs: debiasing +8.1 PCK@0.10 | 1.6 GB | 0.85 s/pair |
+| Task 1 | 25 debiasing variants in one pass | COCO, ISIC, X-Ray, SPair + analysis | 6.1 GB | +0.05 s/variant/episode |
+| Task 2 | 17 + 13 prototype variants in one pass | COCO, ISIC, X-Ray | 6.1 GB | +0.25 s/variant/episode |
+
+All results with conclusions: **[results/COLAB_VERIFICATION.md](results/COLAB_VERIFICATION.md)**. In short:
+* **Task 1:** spectral shrinkage `spectral rho=1` (or `rho=2`) beats the hard projection on COCO (+0.9) and ISIC (+0.7) and
+  matches it on SPair and X-Ray. Token-wise and template corrections are worse.
+* **Task 2:** many-to-many OT aggregation used only in the cluster-aggregation stage (`M=4 ot agg-only`) gives **+1.6 mIoU on COCO**.
+  Using the prototype set for the candidate and seed stages hurts.
+
+**Time budget on your PC.** A T4 is slower than most 8 GB desktop GPUs, so treat these as upper bounds. Per episode: about 7 s,
+plus about 0.05 s per Task 1 variant and 0.25 s per Task 2 variant. One COCO fold (1000 episodes) takes about 2.5 h for Task 1
+and 3.5 h for Task 2 (core set). For a quicker pass, add `EXTRA="--max-episodes 250"` to any command; every variant still sees the same episodes.
+
 
 ---
 
@@ -118,12 +137,25 @@ bash scripts/3_task2.sh
 
 `experiments/task2_multiproto.py` clusters the debiased reference-mask features into M prototypes
 (spherical k-means, or agglomerative with `p.cluster=agglo`) and matches target regions against the set.
-It runs M ∈ {2, 3, 4, 6, 8} × aggregation ∈ {max, mean (size-weighted), softmax, ot (many-to-many optimal transport)},
-plus ablations (global prototype kept, clustering type, which stages use the set). `single (INSID3)` is the original.
+The registry covers M ∈ {2, 3, 4, 6, 8} × aggregation ∈ {max, mean (size-weighted), softmax, ot (many-to-many optimal transport)},
+each either in all matching stages or only in the aggregation stage (`agg-only`), plus ablations (global prototype kept,
+clustering type, stage subsets) and the Task 1 + Task 2 combination. `single (INSID3)` is the original.
+
+By default `3_task2.sh` runs the **core set** of 21 variants verified on Colab, including the aggregation-only variants
+(`M=* ot/max agg-only`) and the Task 1 + Task 2 combinations. `FULL=1 bash scripts/3_task2.sh` runs all 48.
 
 ```bash
 python experiments/task2_multiproto.py --dataset pascal_part --fold 0 \
-    --variants "single (INSID3)" "M=4 max" "p.num_protos=6,p.agg=softmax,p.temp=0.1"
+    --variants "single (INSID3)" "M=4 ot agg-only" "p.num_protos=6,p.agg=softmax,p.temp=0.1"
+```
+
+Not finished on Colab (GPU quota ran out), so worth running first on the PC:
+
+```bash
+python experiments/task2_multiproto.py --dataset isic --max-episodes 150 --max-vram-gb 8 --exp-name t2b-isic \
+    --variants "single (INSID3)" "M=4 max agg-only" "M=4 ot agg-only" "M=8 ot agg-only" "M=8 ot" "M=4 max agg-only + spectral"
+python experiments/task2_multiproto.py --dataset lung --max-episodes 150 --max-vram-gb 8 --exp-name t2b-lung \
+    --variants "single (INSID3)" "M=4 max agg-only" "M=4 ot agg-only" "M=8 mean agg-only" "M=8 mean"
 ```
 
 ---

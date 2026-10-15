@@ -1,3 +1,8 @@
+> **ADL project fork.** Reproduction of INSID3 plus two extensions: **Task 1, Adaptive Positional Debiasing** and
+> **Task 2, Multi-Prototype Reference Matching**. Start with **[RUN_GUIDE.md](RUN_GUIDE.md)** (reproduction → Task 1 → Task 2
+> on an 8 GB GPU). Verified results are in **[results/COLAB_VERIFICATION.md](results/COLAB_VERIFICATION.md)**. New code: `models/insid3_ext.py`,
+> `models/hf_encoder.py`, `experiments/`, `scripts/`.
+
 <div align="center">
 
 # INSID3: Training-Free In-Context Segmentation with DINOv3
