@@ -1,8 +1,11 @@
 """Model construction utilities for INSID3."""
 
+import os
+
 import torch
 
 from models.insid3 import INSID3
+from models.hf_encoder import HFDinov3Encoder
 
 _HUB_NAMES = {
     "small": "dinov3_vits16",
@@ -18,11 +21,16 @@ _WEIGHTS = {
 
 
 def _build_encoder(model_size: str = "large"):
-    return torch.hub.load(
-        "facebookresearch/dinov3",
-        _HUB_NAMES[model_size],
-        weights=_WEIGHTS[model_size],
-    )
+    # Original .pth weights (official Meta release) take precedence; otherwise
+    # fall back to the gated HuggingFace Hub copy of the same weights.
+    if os.path.isfile(_WEIGHTS[model_size]):
+        return torch.hub.load(
+            "facebookresearch/dinov3",
+            _HUB_NAMES[model_size],
+            weights=_WEIGHTS[model_size],
+        )
+    print(f"[INSID3] {_WEIGHTS[model_size]} not found, loading DINOv3 from the HuggingFace Hub")
+    return HFDinov3Encoder.from_pretrained(model_size)
 
 
 def build_insid3(
